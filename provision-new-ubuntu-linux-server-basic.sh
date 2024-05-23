@@ -16,6 +16,7 @@ apt-get dist-upgrade -y
 
 apt-get install -y net-tools
 apt-get install -y docker-compose
+apt-get install sysstat vnstat iotop iftop bwm-ng htop munin
 
 
 echo
