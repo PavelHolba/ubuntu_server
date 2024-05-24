@@ -25,40 +25,42 @@ sudo mkdir -p /etc/ssl/mycerts
 sudo openssl genpkey -algorithm RSA -out /etc/ssl/mycerts/server.key
 
 # Generate CSR (Certificate Signing Request)
-sudo openssl req -new -key /etc/ssl/mycerts/server.key -out /etc/ssl/mycerts/server.csr
+sudo openssl req -new -key /etc/ssl/mycerts/server.key -out /etc/ssl/mycerts/server.csr -subj "/CN=localhost"
 
 # Generate self-signed certificate
 sudo openssl x509 -req -days 365 -in /etc/ssl/mycerts/server.csr -signkey /etc/ssl/mycerts/server.key -out /etc/ssl/mycerts/server.crt
 
-# Backup existing default-ssl.conf
-sudo cp /etc/apache2/sites-available/default-ssl.conf /etc/apache2/sites-available/default-ssl.conf.bak
-
 # Configure Apache to use the self-signed certificate
 sudo bash -c 'cat > /etc/apache2/sites-available/default-ssl.conf <<EOF
-<VirtualHost _default_:443>
-    ServerAdmin webmaster@localhost
-    DocumentRoot /var/www/html
+<IfModule mod_ssl.c>
+    <VirtualHost _default_:443>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/html
 
-    SSLEngine on
-    SSLCertificateFile /etc/ssl/mycerts/server.crt
-    SSLCertificateKeyFile /etc/ssl/mycerts/server.key
+        SSLEngine on
+        SSLCertificateFile /etc/ssl/mycerts/server.crt
+        SSLCertificateKeyFile /etc/ssl/mycerts/server.key
 
-    <FilesMatch "\.(cgi|shtml|phtml|php)$">
-        SSLOptions +StdEnvVars
-    </FilesMatch>
-    <Directory /usr/lib/cgi-bin>
-        SSLOptions +StdEnvVars
-    </Directory>
+        <FilesMatch "\.(cgi|shtml|phtml|php)$">
+            SSLOptions +StdEnvVars
+        </FilesMatch>
+        <Directory /usr/lib/cgi-bin>
+            SSLOptions +StdEnvVars
+        </Directory>
 
-    BrowserMatch "MSIE [2-6]" \\
-        nokeepalive ssl-unclean-shutdown \\
-        downgrade-1.0 force-response-1.0
-    BrowserMatch "MSIE [17-9]" ssl-unclean-shutdown
-</VirtualHost>
+        BrowserMatch "MSIE [2-6]" \\
+            nokeepalive ssl-unclean-shutdown \\
+            downgrade-1.0 force-response-1.0
+        BrowserMatch "MSIE [17-9]" ssl-unclean-shutdown
+    </VirtualHost>
+</IfModule>
 EOF'
 
 # Enable the default SSL site
 sudo a2ensite default-ssl.conf
+
+# Modify Apache ports configuration to listen on port 443
+sudo sed -i 's/^Listen 443/Listen 0.0.0.0:443/' /etc/apache2/ports.conf
 
 # Restart Apache to apply changes
 sudo systemctl restart apache2
