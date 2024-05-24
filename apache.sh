@@ -24,8 +24,18 @@ sudo mkdir -p /etc/ssl/mycerts
 # Generate private key
 sudo openssl genpkey -algorithm RSA -out /etc/ssl/mycerts/server.key
 
-# Generate CSR (Certificate Signing Request)
-sudo openssl req -new -key /etc/ssl/mycerts/server.key -out /etc/ssl/mycerts/server.csr -subj "/CN=localhost"
+# Set company details
+country="CZ"
+state="CZ"
+locality="Ostrava"
+organization="mujserver"
+organizational_unit="IT"
+common_name="localhost"
+email_address="admin@mujserver.com"
+
+# Generate CSR (Certificate Signing Request) with company details
+sudo openssl req -new -key /etc/ssl/mycerts/server.key -out /etc/ssl/mycerts/server.csr \
+    -subj "/C=${country}/ST=${state}/L=${locality}/O=${organization}/OU=${organizational_unit}/CN=${common_name}/emailAddress=${email_address}"
 
 # Generate self-signed certificate
 sudo openssl x509 -req -days 365 -in /etc/ssl/mycerts/server.csr -signkey /etc/ssl/mycerts/server.key -out /etc/ssl/mycerts/server.crt
