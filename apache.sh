@@ -6,7 +6,7 @@ clear
 
 echo
 echo "## "
-echo "## routine: [apache install] // state: [starting]"
+echo "## job: [apache install] // state: [starting]"
 echo "## "
 echo
 
@@ -81,6 +81,6 @@ sudo systemctl restart apache2
 
 echo
 echo "## "
-echo "## routine: [apache install] // state: [completed]"
+echo "## job: [apache install] // state: [completed]"
 echo "## "
 echo
