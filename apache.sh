@@ -60,7 +60,11 @@ EOF'
 sudo a2ensite default-ssl.conf
 
 # Modify Apache ports configuration to listen on port 443
-sudo sed -i 's/^Listen 443/Listen 0.0.0.0:443/' /etc/apache2/ports.conf
+echo '# If you just change the port or add more ports here, you will likely also
+# have to change the VirtualHost statement in
+# /etc/apache2/sites-enabled/000-default.conf
+
+Listen 0.0.0.0:443' | sudo tee /etc/apache2/ports.conf > /dev/null
 
 # Restart Apache to apply changes
 sudo systemctl restart apache2
